@@ -155,16 +155,90 @@ export default function ImageEditor() {
         // console.log(cropper.getCoordinates(), cropper.getCanvas()?.toDataURL?.()); // toDataURL bad approach
     };
 
-    const handleApplyFilter = () => {};
+    const handleApplyFilter = (e) => {
+        let { value } = e.target;
+        switch (value) {
+            case "clarendon": {
+                setAdjustments({
+                    brightness: 1.2,
+                    saturation: 1.5,
+                    contrast: 1.2,
+                    hue: 0,
+                });
+                break;
+            }
 
-    useEffect(() => {
-        setAdjustments({
-            brightness: 1.2,
-            hue: 0,
-            saturation: 1.5,
-            contrast: 1.2,
-        });
-    }, []);
+            case "gingham": {
+                setAdjustments({
+                    saturation: 0.8,
+                    contrast: 0.8,
+                    brightness: 0,
+                    hue: 0,
+                });
+                break;
+            }
+
+            case "juno": {
+                setAdjustments({
+                    brightness: 1.1,
+                    contrast: 1.1,
+                    saturation: 1.2,
+                    sepia: 0.3,
+                    hue: 0,
+                });
+                break;
+            }
+
+            case "lark": {
+                setAdjustments({
+                    brightness: 1.1,
+                    saturation: 0.8,
+                    hue: 0,
+                    contrast: 0,
+                });
+                break;
+            }
+
+            case "moon": {
+                setAdjustments({
+                    brightness: 0.8,
+                    contrast: 1.2,
+                    grayscale: 1,
+                    sepai: 0.2,
+                    hue: 0,
+                    saturation: 0,
+                });
+                break;
+            }
+
+            case "reyes": {
+                setAdjustments({
+                    brightness: 1.2,
+                    contrast: 0.9,
+                    grayscale: 0,
+                    sepai: 0.2,
+                    hue: 0,
+                    saturation: 0,
+                });
+                break;
+            }
+
+            case "willow": {
+                setAdjustments({
+                    brightness: 0.9,
+                    saturation: 0.7,
+                    contrast: 0,
+                    grayscale: 0,
+                    sepai: 0,
+                    hue: 0,
+                });
+                break;
+            }
+
+            default:
+                break;
+        }
+    };
 
     useEffect(() => {
         return () => {
@@ -184,30 +258,21 @@ export default function ImageEditor() {
 
             <div className="imageEditor__preview__container">
                 <Cropper
-                    className="imageEditor__cropper img-filter-clarendon"
+                    className="imageEditor__cropper "
                     src={image}
                     ref={cropperRef}
                     onChange={onChange}
                     stencilComponent={CircleStencil}
                     stencilProps={{
                         aspectRatio: 1,
-                        // aspectRatio: {
-                        //     minimum: 19 / 9,
-                        // },
                         overlayClassName: "cropper-overlay",
-                        previewClassName: "img-filter-clarendon",
                         grid: true,
                     }}
                     backgroundProps={adjustments}
                     onUpdate={onUpdate}
                 />
 
-                <CropperPreview
-                    cropper={cropperRef}
-                    ref={previewRef}
-                    className="img-filter-clarendon"
-                    {...previewState}
-                />
+                <CropperPreview cropper={cropperRef} ref={previewRef} {...previewState} />
             </div>
 
             <footer>
@@ -325,7 +390,7 @@ export default function ImageEditor() {
 
                 {mode.filter && (
                     <div className="btn-actions place-items place-items-horizontal">
-                        <div className="place-items place-items-vertical">
+                        <div className="place-items place-items-vertical filters-container">
                             <label htmlFor="zoom">Filters</label>
                             <select name="filter" id="filter" onChange={handleApplyFilter}>
                                 <option value="clarendon">Clarendon</option>
@@ -342,24 +407,4 @@ export default function ImageEditor() {
             </section>
         </section>
     );
-}
-
-{
-    /* <div className="btn-actions">
-                    <button className="btn" onClick={flip(true, false)}>
-                        Flip Horizontal
-                    </button>
-                    <button className="btn" onClick={flip(false, true)}>
-                        Flip Vertical
-                    </button>
-                    <button className="btn" onClick={rotate(-1)}>
-                        Rotate Counter-Clockwise
-                    </button>
-                    <button className="btn" onClick={rotate(1)}>
-                        Rotate Clockwise
-                    </button>
-                    <button className="btn" onClick={download}>
-                        Download
-                    </button>
-                </div> */
 }
