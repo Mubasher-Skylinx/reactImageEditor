@@ -29,6 +29,11 @@ export default function ImageEditor() {
         contrast: 0,
     });
 
+    const [image, setImage] = useState(profile);
+
+    const cropperRef = useRef(null);
+    const imageRef = useRef(null);
+
     const onUpdate = (cropper) => {
         previewRef.current?.refresh();
         setPreviewState({
@@ -67,12 +72,7 @@ export default function ImageEditor() {
         }
     };
 
-    const [image, setImage] = useState(profile);
-
-    const cropperRef = useRef(null);
-    const imageRef = useRef(null);
-
-    const onImageChange = (e) => {
+    const handleImageChange = (e) => {
         const { files } = e.target;
         if (files && files[0]) {
             // Create the blob link to the file to optimize performance:
@@ -84,60 +84,29 @@ export default function ImageEditor() {
         }
     };
 
-    const zoom = (e) => {
-        let newZoomValue = Number(e.target.value);
-        let valueToBeZoomed;
-
-        let state = cropperRef.current.getState();
-        let settings = cropperRef.current.getSettings();
-
-        const absoluteZoom = getAbsoluteZoom(state, settings);
-
-        if (imageState.zoom < newZoomValue) {
-            valueToBeZoomed = Math.min(1, absoluteZoom + 0.25);
-        } else {
-            valueToBeZoomed = Math.min(1, absoluteZoom - 0.25);
+    const onZoom = (e) => {
+        const cropper = cropperRef.current;
+        if (cropper) {
+            cropper.zoomImage(
+                getZoomFactor(cropper.getState(), cropper.getSettings(), e.target.value),
+                {
+                    transitions: false,
+                }
+            );
         }
-
-        cropperRef.current.zoomImage(getZoomFactor(state, settings, valueToBeZoomed), {
-            transitions: true,
-        });
-
-        setImageState((prevState) => {
-            return {
-                ...prevState,
-                zoom: newZoomValue,
-            };
-        });
     };
 
     const flip = (horizontal, vertical) => () => {
         cropperRef.current?.flipImage(horizontal, vertical);
     };
 
-    const rotate = (e) => {
-        const rotationValue = Number(e.target.value);
+    const onRotate = (e) => {
+        const { value } = e.target;
 
-        const rotationDifference = rotationValue - imageState.rotate;
+        const difference = value - imageState.rotate;
 
-        if (rotationDifference === 0) {
-            cropperRef.current.reset();
-            return;
-        }
-
-        const increment = rotationDifference > 0 ? 1 : -1;
-
-        const rotationSteps = Math.abs(rotationDifference);
-
-        for (let i = 0; i < rotationSteps; i++) {
-            cropperRef.current?.rotateImage(increment);
-        }
-
-        setImageState((prevState) => {
-            return {
-                ...prevState,
-                rotate: rotationValue,
-            };
+        cropperRef.current?.rotateImage(difference, {
+            transitions: false,
         });
     };
 
@@ -177,6 +146,11 @@ export default function ImageEditor() {
 
     // THIS FUNCTION WILL CALL WHEN EVER THERE IS CHANGE IN EDITOR
     const onChange = (cropper) => {
+        const state = cropper.getState();
+        setImageState({
+            rotate: state.transforms.rotate,
+            zoom: getAbsoluteZoom(state, cropper.getSettings()),
+        });
         // console.log(cropper.getCoordinates(), cropper.getCanvas());
         // console.log(cropper.getCoordinates(), cropper.getCanvas()?.toDataURL?.()); // toDataURL bad approach
     };
@@ -254,7 +228,7 @@ export default function ImageEditor() {
                             type="file"
                             accept="image/*"
                             id="uploadImage"
-                            onChange={onImageChange}
+                            onChange={handleImageChange}
                             hidden
                         />
                     </div>
@@ -286,16 +260,16 @@ export default function ImageEditor() {
                 {mode.crop && (
                     <div className="btn-actions place-items place-items-horizontal">
                         <div className="place-items place-items-vertical">
-                            <label htmlFor="zoom">Zoom {imageState.zoom}</label>
+                            <label htmlFor="zoom">Zoom {parseInt(imageState.zoom * 10)}</label>
                             <input
                                 type="range"
                                 name="zoom"
                                 id="zoom"
-                                defaultValue={0}
+                                value={imageState.zoom}
                                 min={0}
-                                max={5}
-                                step={0.5}
-                                onChange={zoom}
+                                max={1}
+                                step={0.1}
+                                onChange={onZoom}
                             />
                         </div>
 
@@ -305,11 +279,11 @@ export default function ImageEditor() {
                                 type="range"
                                 name="rotation"
                                 id="rotation"
-                                defaultValue={imageState.zoom}
+                                value={imageState.rotate}
                                 min={-360}
                                 max={360}
                                 step={1}
-                                onChange={rotate}
+                                onChange={onRotate}
                             />
                         </div>
                         <button className="btn" onClick={flip(true, false)}>
