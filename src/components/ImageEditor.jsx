@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Cropper, CircleStencil, CropperPreview } from "react-advanced-cropper";
 import { getAbsoluteZoom, getZoomFactor } from "advanced-cropper/extensions/absolute-zoom";
+import { AdjustableCropperBackground } from "./AdjustableCropperBackground.jsx";
+import { AdjustablePreviewBackground } from "./AdjustablePreviewBackground.jsx";
 import "react-advanced-cropper/dist/style.css";
 
 import profile from "@/assets/images/profile.jpg";
@@ -14,8 +16,8 @@ export default function ImageEditor() {
         rotate: 0,
     });
     const [mode, setMode] = useState({
-        crop: true,
-        filter: false,
+        crop: false,
+        filter: true,
     });
     const [previewState, setPreviewState] = useState({
         state: null,
@@ -268,11 +270,18 @@ export default function ImageEditor() {
                         overlayClassName: "cropper-overlay",
                         grid: true,
                     }}
+                    backgroundComponent={AdjustableCropperBackground}
                     backgroundProps={adjustments}
                     onUpdate={onUpdate}
                 />
 
-                <CropperPreview cropper={cropperRef} ref={previewRef} {...previewState} />
+                <CropperPreview
+                    cropper={cropperRef}
+                    ref={previewRef}
+                    {...previewState}
+                    backgroundComponent={AdjustablePreviewBackground}
+                    backgroundProps={adjustments}
+                />
             </div>
 
             <footer>
