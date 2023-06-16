@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
 import { getBackgroundStyle } from "advanced-cropper";
 import { AdjustableImage } from "./AdjustableImage";
 
@@ -19,8 +19,8 @@ export const AdjustableCropperBackground = forwardRef(
                 crossOrigin={crossOrigin}
                 brightness={brightness}
                 saturation={saturation}
-                hue={hue}
                 contrast={contrast}
+                hue={hue}
                 ref={ref}
                 className={className}
                 style={style}
